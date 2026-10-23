@@ -1,14 +1,19 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2, LogIn } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export function AccountLoginForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [email, setEmail] = useState(searchParams.get("email") ?? "");
+  const [email, setEmail] = useState("");
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setEmail(params.get("email") ?? "");
+    setPasswordUpdated(params.get("passwordUpdated") === "1");
+  }, []);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +30,7 @@ export function AccountLoginForm() {
   }
   const inputClass = "mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20";
   return <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-background p-6 shadow-sm"><div className="space-y-5">
-    {searchParams.get("passwordUpdated") === "1" && <div role="status" className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm">Tu contraseña se actualizó correctamente. Inicia sesión con tu nueva contraseña.</div>}
+    {passwordUpdated && <div role="status" className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm">Tu contraseña se actualizó correctamente. Inicia sesión con tu nueva contraseña.</div>}
     <div><label htmlFor="email" className="text-sm font-medium">Correo electrónico</label><input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} placeholder="tu-correo@ejemplo.com" /></div>
     <div><label htmlFor="password" className="text-sm font-medium">Contraseña</label><input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} placeholder="••••••••" /></div>
     <div className="text-right"><Link href={`/cuenta/recuperar?email=${encodeURIComponent(email.trim())}`} className="text-sm font-medium text-primary underline-offset-4 hover:underline">¿Olvidaste tu contraseña?</Link></div>
