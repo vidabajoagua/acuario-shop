@@ -1,13 +1,15 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2, Mail } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function RecoverPasswordPage() {
-  const params = useSearchParams();
-  const [email, setEmail] = useState(params.get("email") ?? "");
+  const [email, setEmail] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setEmail(params.get("email") ?? "");
+  }, []);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
