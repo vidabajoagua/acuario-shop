@@ -78,13 +78,13 @@ export function ProductCard({
           </h2>
         </Link>
 
-        <p className="mt-2 min-h-12 line-clamp-2 text-sm leading-6 text-muted-foreground">
+        <p className="mt-2 h-12 line-clamp-2 overflow-hidden text-sm leading-6 text-muted-foreground">
             {product.short_description ??
             product.description ??
             ""}
         </p>
 
-        <div className="mt-5 flex min-h-14 items-end justify-between gap-4">
+       <div className="mt-auto flex min-h-14 items-end justify-between gap-4 pt-5">
           <div>
             {hasDiscount && (
               <p className="text-sm text-muted-foreground line-through">
@@ -109,7 +109,7 @@ export function ProductCard({
           </Link>
         </div>
 
-        <div className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
+        <div className="mt-4 min-h-9 border-t border-border pt-3 text-xs text-muted-foreground">
           {stock > 0
             ? `${stock} disponibles`
             : "Agotado"}
