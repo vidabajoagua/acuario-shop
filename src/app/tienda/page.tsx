@@ -47,11 +47,7 @@ export default async function TiendaPage({ searchParams }: TiendaPageProps) {
         <div className="relative mx-auto max-w-7xl px-4 py-3 md:px-8 md:py-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="inline-flex items-center gap-1.5 rounded-full border border-emerald-800/10 bg-white/70 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-900">
-                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-                VidaBajoAgua · tienda acuática
-              </p>
-              <h1 className="mt-1.5 text-xl font-semibold tracking-tight text-emerald-950 md:text-2xl">
+              <h1 className="text-xl font-semibold tracking-tight text-emerald-950 md:text-2xl">
                 Dale vida a tu acuario.
               </h1>
               <p className="mt-1 max-w-xl text-xs leading-5 text-slate-600 md:text-sm">
