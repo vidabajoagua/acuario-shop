@@ -20,20 +20,20 @@ export function Hero() {
 
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/55 via-transparent to-transparent" />
 
-      <div className="mx-auto flex min-h-[500px] max-w-7xl items-center justify-center px-4 py-14 text-center sm:min-h-[520px] sm:py-16 md:px-8 md:py-20">
-        <div className="mx-auto max-w-3xl">
+      <div className="mx-auto flex min-h-[390px] max-w-7xl items-center px-4 py-10 sm:min-h-[420px] sm:py-12 md:px-8 md:py-14">
+        <div className="max-w-2xl">
           <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
             Naturaleza que{" "}
             <span className="text-primary">cobra vida.</span>
           </h1>
 
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg md:mt-5 md:text-xl">
+          <p className="mt-3 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg md:mt-4 md:text-xl">
             Todo para crear, cuidar y disfrutar tu mundo acuático.
             Descubre plantas, equipamiento y accesorios seleccionados
             para llevar tu acuario a otro nivel.
           </p>
 
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row md:mt-7">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row md:mt-6">
             <Link
               href="/tienda"
               className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-medium text-primary-foreground shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:shadow-xl"
@@ -53,7 +53,7 @@ export function Hero() {
             </Link>
           </div>
 
-          <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground sm:text-sm md:mt-8">
+          <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground sm:text-sm md:mt-7">
             <span>🌿 Plantas</span>
             <span>💧 Equipamiento</span>
             <span>🇪🇨 Envíos en Ecuador</span>
