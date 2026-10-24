@@ -20,7 +20,7 @@ export function Hero() {
 
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/55 via-transparent to-transparent" />
 
-      <div className="mx-auto flex min-h-[390px] max-w-7xl items-center px-4 py-10 sm:min-h-[420px] sm:py-12 md:px-8 md:py-14">
+      <div className="mx-auto flex min-h-0 max-w-7xl items-center px-4 py-8 sm:py-9 md:px-8 md:py-10">
         <div className="max-w-2xl">
           <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
             Naturaleza que{" "}
