@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Leaf } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export function Hero() {
   return (
@@ -16,11 +16,11 @@ export function Hero() {
         />
       </div>
 
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/65 to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/45 to-transparent" />
 
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/55 via-transparent to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/30 via-transparent to-transparent" />
 
-      <div className="mx-auto flex min-h-0 max-w-7xl items-center px-4 py-8 sm:py-9 md:px-8 md:py-10">
+      <div className="mx-auto flex min-h-[520px] max-w-7xl items-center px-4 py-12 sm:min-h-[560px] md:px-8 md:py-14 lg:min-h-[600px]">
         <div className="max-w-2xl">
           <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
             Naturaleza que{" "}
