@@ -12,9 +12,6 @@ type ShippingSettings = {
   max_automatic_rate: number;
   free_shipping_minimum: number;
   automatic_shipping_enabled: boolean;
-  origin_address: string | null;
-  origin_latitude: number | null;
-  origin_longitude: number | null;
 };
 
 type Props = {
@@ -55,18 +52,6 @@ export function ShippingManager({ initialSettings }: Props) {
     settings.free_shipping_minimum,
   automatic_shipping_enabled:
     settings.automatic_shipping_enabled,
-  origin_address:
-    settings.origin_address,
-  origin_latitude:
-    typeof settings.origin_latitude === "number" &&
-    Number.isFinite(settings.origin_latitude)
-      ? settings.origin_latitude
-      : null,
-  origin_longitude:
-    typeof settings.origin_longitude === "number" &&
-    Number.isFinite(settings.origin_longitude)
-      ? settings.origin_longitude
-      : null,
 });
 
         setMessage("Configuración guardada correctamente.");
@@ -237,78 +222,6 @@ export function ShippingManager({ initialSettings }: Props) {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold">
-            Origen de los envíos
-          </h2>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            Más adelante utilizaremos estos datos para calcular la distancia
-            entre el origen y la dirección del cliente.
-          </p>
-        </div>
-
-        <div className="space-y-5">
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Dirección de origen
-            </label>
-
-            <input
-              type="text"
-              value={settings.origin_address ?? ""}
-              onChange={(e) =>
-                updateField("origin_address", e.target.value)
-              }
-              placeholder="Dirección desde donde salen los pedidos"
-              className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Latitud
-              </label>
-
-              <input
-                type="number"
-                step="0.0000001"
-                value={settings.origin_latitude ?? ""}
-                onChange={(e) =>
-                  updateField(
-                    "origin_latitude",
-                    e.target.value,
-                  )
-                }
-                placeholder="Opcional"
-                className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Longitud
-              </label>
-
-              <input
-                type="number"
-                step="0.0000001"
-                value={settings.origin_longitude ?? ""}
-                onChange={(e) =>
-                  updateField(
-                    "origin_longitude",
-                    e.target.value,
-                  )
-                }
-                placeholder="Opcional"
-                className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className="flex items-center justify-between gap-4">
         <div className="text-sm">
