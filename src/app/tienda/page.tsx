@@ -40,27 +40,31 @@ export default async function TiendaPage({ searchParams }: TiendaPageProps) {
   const categoryLabel = selectedCategoryData?.name ?? selectedCategory ?? "Todos los productos";
 
   return (
-    <div className="min-h-screen">
-      <section className="relative isolate overflow-hidden border-b border-emerald-950/10 bg-gradient-to-br from-emerald-50 via-[#f8f7ef] to-cyan-50">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-32 h-72 w-72 rounded-full bg-teal-300/25 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-4 py-3 md:px-8 md:py-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight text-emerald-950 md:text-2xl">
+    <main className="min-h-screen bg-background">
+      <section className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(75,130,104,0.16),transparent_30%),radial-gradient(circle_at_85%_10%,rgba(51,133,166,0.14),transparent_28%)]" />
+        <div className="relative mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-7">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
+                VidaBajoAgua · Tienda de acuariofilia
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight md:text-4xl">
                 Dale vida a tu acuario.
               </h1>
-              <p className="mt-1 max-w-xl text-xs leading-5 text-slate-600 md:text-sm">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base md:leading-7">
                 Plantas, iluminación y esenciales para crear tu propio mundo bajo el agua.
               </p>
             </div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-white/80 bg-white/75 px-3 py-2 shadow-sm backdrop-blur">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
+            <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-border/80 bg-card/80 px-3 py-2 shadow-sm backdrop-blur">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
                 <span className="text-lg">✦</span>
               </span>
               <div>
-                <p className="text-base font-semibold leading-4 text-emerald-950">{filteredProducts.length}</p>
-                <p className="mt-0.5 text-[10px] text-slate-600">{filteredProducts.length === 1 ? "producto disponible" : "productos disponibles"}</p>
+                <p className="text-base font-semibold leading-4">{filteredProducts.length}</p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
+                  {filteredProducts.length === 1 ? "producto disponible" : "productos disponibles"}
+                </p>
               </div>
             </div>
           </div>
@@ -68,7 +72,7 @@ export default async function TiendaPage({ searchParams }: TiendaPageProps) {
       </section>
 
       <section className="sticky top-0 z-20 border-b border-border/80 bg-background/90 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 md:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
               Explora por categoría
@@ -82,11 +86,11 @@ export default async function TiendaPage({ searchParams }: TiendaPageProps) {
       </section>
 
       <section className="py-7 md:py-9">
-        <div className="mx-auto max-w-7xl px-4 md:px-8">
+        <div className="mx-auto max-w-6xl px-4 md:px-6">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-700">Encuentra tus favoritos</p>
-              <h2 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">Encuentra tus favoritos</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
                 {searchTerm
                   ? `Resultados para "${params.busqueda}"`
                   : selectedCategory
@@ -101,6 +105,6 @@ export default async function TiendaPage({ searchParams }: TiendaPageProps) {
           <ProductGrid products={filteredProducts} />
         </div>
       </section>
-    </div>
+    </main>
   );
 }
