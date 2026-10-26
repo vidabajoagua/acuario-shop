@@ -16,9 +16,9 @@ export function Hero() {
         />
       </div>
 
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/45 to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/30 to-transparent" />
 
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/30 via-transparent to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/20 via-transparent to-transparent" />
 
       <div className="mx-auto flex min-h-[520px] max-w-7xl items-center px-4 py-12 sm:min-h-[560px] md:px-8 md:py-14 lg:min-h-[600px]">
         <div className="max-w-2xl">
