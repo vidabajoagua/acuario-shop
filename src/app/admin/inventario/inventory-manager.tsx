@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   Boxes,
+  ChevronDown,
   Loader2,
   Package,
   Plus,
@@ -121,6 +122,9 @@ export function InventoryManager({
     );
 
   const [search, setSearch] = useState("");
+
+  const [expandedProductId, setExpandedProductId] =
+    useState<string | null>(null);
 
   const [selectedProduct, setSelectedProduct] =
     useState<Product | null>(null);
@@ -393,17 +397,34 @@ export function InventoryManager({
                           />
                         </div>
 
-                        <div className="min-w-0">
-                          <p className="truncate font-medium">
-                            {product.name}
-                          </p>
-
-                          {product.sku && (
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              SKU: {product.sku}
-                            </p>
-                          )}
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedProductId((current) =>
+                              current === product.id ? null : product.id,
+                            )
+                          }
+                          aria-expanded={expandedProductId === product.id}
+                          aria-controls={`inventory-history-${product.id}`}
+                          className="group flex min-w-0 flex-1 items-center justify-between gap-3 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate font-medium">
+                              {product.name}
+                            </span>
+                            {product.sku && (
+                              <span className="mt-1 block text-xs text-muted-foreground">
+                                SKU: {product.sku}
+                              </span>
+                            )}
+                          </span>
+                          <ChevronDown
+                            size={17}
+                            className={`shrink-0 text-muted-foreground transition-transform duration-200 group-hover:text-foreground ${
+                              expandedProductId === product.id ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
                       </div>
                     </div>
 
@@ -439,16 +460,24 @@ export function InventoryManager({
                     </button>
                   </div>
 
-                  {/* Historial */}
-                  {productMovements.length > 0 && (
-                    <div className="border-t border-border bg-muted/20 px-6 py-4">
-                      <p className="mb-3 text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
-                        Últimos movimientos
-                      </p>
+                  {/* Historial desplegable tipo acordeón */}
+                  {expandedProductId === product.id && (
+                    <div
+                      id={`inventory-history-${product.id}`}
+                      className="animate-in slide-in-from-top-1 border-t border-border bg-muted/20 px-5 py-5 duration-200 sm:px-6"
+                    >
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                          Últimos movimientos
+                        </p>
+                        <span className="text-xs text-muted-foreground">
+                          {productMovements.length} {productMovements.length === 1 ? "movimiento" : "movimientos"}
+                        </span>
+                      </div>
 
-                      <div className="space-y-2">
-                        {productMovements.map(
-                          (movement) => (
+                      {productMovements.length > 0 ? (
+                        <div className="space-y-2">
+                          {productMovements.map((movement) => (
                             <div
                               key={movement.id}
                               className="flex flex-col gap-2 rounded-xl border border-border bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
@@ -456,50 +485,39 @@ export function InventoryManager({
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <span className="text-sm font-medium">
-                                    {getMovementLabel(
-                                      movement.movement_type,
-                                    )}
+                                    {getMovementLabel(movement.movement_type)}
                                   </span>
-
                                   <span
                                     className={`text-sm font-semibold ${
-                                      movement.quantity_change >
-                                      0
+                                      movement.quantity_change > 0
                                         ? "text-primary"
                                         : "text-destructive"
                                     }`}
                                   >
-                                    {movement.quantity_change >
-                                    0
-                                      ? "+"
-                                      : ""}
-                                    {
-                                      movement.quantity_change
-                                    }
+                                    {movement.quantity_change > 0 ? "+" : ""}
+                                    {movement.quantity_change}
                                   </span>
                                 </div>
-
                                 {movement.reason && (
                                   <p className="mt-1 truncate text-xs text-muted-foreground">
                                     {movement.reason}
                                   </p>
                                 )}
                               </div>
-
                               <time
-                                dateTime={
-                                  movement.created_at
-                                }
+                                dateTime={movement.created_at}
                                 className="shrink-0 text-xs text-muted-foreground"
                               >
-                                {formatMovementDate(
-                                  movement.created_at,
-                                )}
+                                {formatMovementDate(movement.created_at)}
                               </time>
                             </div>
-                          ),
-                        )}
-                      </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+                          Este producto todavía no tiene movimientos registrados.
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
