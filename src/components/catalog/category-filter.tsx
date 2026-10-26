@@ -43,10 +43,7 @@ export function CategoryFilter({ categories, selectedCategory, searchTerm }: Cat
 
   return (
     <div>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        Categorías
-      </p>
-      <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
         <Link
           href={getCategoryHref()}
           aria-current={!selectedCategory ? "page" : undefined}

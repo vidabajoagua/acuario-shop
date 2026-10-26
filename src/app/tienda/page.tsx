@@ -74,9 +74,6 @@ export default async function TiendaPage({ searchParams }: TiendaPageProps) {
       <section className="sticky top-0 z-20 border-b border-border/80 bg-background/90 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 md:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-              Explora por categoría
-            </p>
             <CategoryFilter categories={categories} selectedCategory={selectedCategory} searchTerm={params.busqueda} />
           </div>
           <div className="w-full lg:max-w-sm">
@@ -98,9 +95,7 @@ export default async function TiendaPage({ searchParams }: TiendaPageProps) {
                     : "Descubre el catálogo"}
               </h2>
             </div>
-            <span className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
-              {filteredProducts.length} {filteredProducts.length === 1 ? "artículo" : "artículos"}
-            </span>
+            
           </div>
           <ProductGrid products={filteredProducts} />
         </div>
