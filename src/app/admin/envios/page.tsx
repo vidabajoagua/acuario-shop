@@ -14,11 +14,7 @@ export default async function EnviosPage() {
       additional_km_rate,
       max_automatic_rate,
       free_shipping_minimum,
-      automatic_shipping_enabled,
-      origin_address,
-      origin_latitude,
-      origin_longitude
-    `)
+      automatic_shipping_enabled    `)
     .limit(1)
     .single();
 
