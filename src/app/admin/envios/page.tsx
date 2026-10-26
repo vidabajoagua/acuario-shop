@@ -14,7 +14,8 @@ export default async function EnviosPage() {
       additional_km_rate,
       max_automatic_rate,
       free_shipping_minimum,
-      automatic_shipping_enabled    `)
+      automatic_shipping_enabled
+`)
     .limit(1)
     .single();
 
