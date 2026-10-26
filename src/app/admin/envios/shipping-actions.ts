@@ -11,9 +11,6 @@ type ShippingSettings = {
   max_automatic_rate: number;
   free_shipping_minimum: number;
   automatic_shipping_enabled: boolean;
-  origin_address: string | null;
-  origin_latitude: number | null;
-  origin_longitude: number | null;
 };
 
 async function requireAdmin() {
@@ -84,9 +81,6 @@ export async function updateShippingSettings(
       max_automatic_rate: settings.max_automatic_rate,
       free_shipping_minimum: settings.free_shipping_minimum,
       automatic_shipping_enabled: settings.automatic_shipping_enabled,
-      origin_address: settings.origin_address?.trim() || null,
-      origin_latitude: settings.origin_latitude,
-      origin_longitude: settings.origin_longitude,
       updated_at: new Date().toISOString(),
     })
     .eq("id", existing.id);
