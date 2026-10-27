@@ -5,8 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Images,
-  Minus,
-  Plus,
   X,
   ZoomIn,
   ZoomOut,
@@ -97,7 +95,6 @@ export function ProductGallery({
   return (
     <>
       <div className="space-y-4">
-        {/* Imagen principal: clic para abrir el visor ampliado */}
         <div className="group relative overflow-hidden rounded-3xl border border-border bg-muted">
           <button
             type="button"
@@ -120,7 +117,6 @@ export function ProductGallery({
           </button>
         </div>
 
-        {/* Miniaturas */}
         {sortedImages.length > 1 && (
           <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
             {sortedImages.map((image, index) => {
@@ -265,11 +261,7 @@ export function ProductGallery({
                   aria-pressed={image.id === selectedImage.id}
                   className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 transition sm:h-16 sm:w-16 ${image.id === selectedImage.id ? "border-white" : "border-white/20 opacity-60 hover:opacity-100"}`}
                 >
-                  <img
-                    src={image.url}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={image.url} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
