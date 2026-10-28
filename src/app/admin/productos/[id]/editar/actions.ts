@@ -31,7 +31,7 @@ async function saveProductAttributeValues(
   const values: { product_id: string; attribute_id: string; value: unknown }[] = [];
   for (const definition of definitions ?? []) {
     const key = `attribute_${definition.id}`;
-    const submitted = formData.getAll(key).map((item) => String(item).trim()).filter(Boolean);
+    const submitted = formData.getAll(key).map((item) => String(item).trim()).filter((item) => item !== "");
     if (definition.is_required && submitted.length === 0) {
       throw new Error(`El atributo "${definition.name}" es obligatorio.`);
     }
