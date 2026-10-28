@@ -237,6 +237,106 @@ type CreateOrderInput = {
   additional_email: string;
 };
 
+
+async function validateShippingCost(
+  admin: ReturnType<typeof createAdminClient>,
+  input: CreateOrderInput,
+): Promise<{ valid: true; shippingCost: number } | { valid: false; error: string }> {
+  if (input.payment_method === "efectivo") {
+    return { valid: true, shippingCost: 0 };
+  }
+
+  if (!Array.isArray(input.items) || input.items.length === 0) {
+    return { valid: false, error: "El carrito está vacío." };
+  }
+
+  const productIds = [...new Set(input.items.map((item) => item.product_id))];
+  if (
+    productIds.some((id) => typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) ||
+    input.items.some((item) => !Number.isSafeInteger(item.quantity) || item.quantity <= 0)
+  ) {
+    return { valid: false, error: "Los productos o las cantidades del carrito no son válidos." };
+  }
+
+  const [productsResult, settingsResult, coverageResult] = await Promise.all([
+    admin
+      .from("products")
+      .select("id, price")
+      .in("id", productIds)
+      .eq("is_active", true),
+    admin
+      .from("shipping_settings")
+      .select("free_shipping_minimum")
+      .limit(1)
+      .single(),
+    admin
+      .from("shipping_coverage")
+      .select("province, city, parish, enabled, shipping_cost"),
+  ]);
+
+  if (productsResult.error || settingsResult.error || coverageResult.error || !settingsResult.data) {
+    console.error("[CHECKOUT SHIPPING VALIDATION]", {
+      products: productsResult.error,
+      settings: settingsResult.error,
+      coverage: coverageResult.error,
+    });
+    return { valid: false, error: "No se pudo validar la tarifa de envío. Inténtalo nuevamente." };
+  }
+
+  const products = productsResult.data ?? [];
+  if (products.length !== productIds.length) {
+    return { valid: false, error: "Uno o más productos ya no están disponibles. Actualiza tu carrito." };
+  }
+
+  const priceById = new Map(products.map((product) => [product.id, Number(product.price)]));
+  let subtotalCents = 0;
+
+  for (const item of input.items) {
+    const price = priceById.get(item.product_id);
+    if (price === undefined || !Number.isFinite(price) || price < 0) {
+      return { valid: false, error: "No se pudo validar el precio de los productos." };
+    }
+    subtotalCents += Math.round(price * 100) * item.quantity;
+  }
+
+  const freeShippingMinimum = Number(settingsResult.data.free_shipping_minimum);
+  if (!Number.isFinite(freeShippingMinimum) || freeShippingMinimum < 0) {
+    return { valid: false, error: "La configuración de envíos no es válida." };
+  }
+
+  let expectedShippingCost = 0;
+  if (subtotalCents < Math.round(freeShippingMinimum * 100)) {
+    const normalize = (value: string | null | undefined) => (value ?? "").trim().toLocaleLowerCase();
+    const coverage = (coverageResult.data ?? []).find(
+      (entry) =>
+        normalize(entry.province) === normalize(input.province) &&
+        normalize(entry.city) === normalize(input.city) &&
+        normalize(entry.parish) === normalize(input.parish),
+    );
+
+    if (coverage?.enabled && coverage.shipping_cost !== null) {
+      expectedShippingCost = Number(coverage.shipping_cost);
+    }
+    // Sin una tarifa de cobertura confirmada, el pedido queda "por confirmar"
+    // y conserva costo cero hasta que el equipo confirme el envío.
+  }
+
+  if (!Number.isFinite(expectedShippingCost) || expectedShippingCost < 0) {
+    return { valid: false, error: "La tarifa de envío configurada no es válida." };
+  }
+
+  const submittedCost = Number(input.shipping_cost);
+  const expectedCents = Math.round(expectedShippingCost * 100);
+  if (!Number.isFinite(submittedCost) || Math.round(submittedCost * 100) !== expectedCents) {
+    return {
+      valid: false,
+      error: "La tarifa de envío cambió o no coincide con la configuración. Revisa el envío y vuelve a intentar.",
+    };
+  }
+
+  return { valid: true, shippingCost: expectedCents / 100 };
+}
+
 export async function createPendingOrder(
   input: CreateOrderInput,
 ) {
@@ -266,10 +366,20 @@ export async function createPendingOrder(
      */
     const admin = createAdminClient();
 
+    const shippingValidation = await validateShippingCost(admin, input);
+    if (!shippingValidation.valid) {
+      return {
+        success: false,
+        error: shippingValidation.error,
+      };
+    }
+
     /*
-     * Por ahora solo obtenemos la identidad.
-     * En el siguiente paso la enviaremos al RPC.
+     * La tarifa enviada por el navegador nunca se acepta sin validación.
+     * Se envía al RPC el importe recalculado a partir de la configuración
+     * y la cobertura consultadas desde el servidor.
      */
+    const validatedShippingCost = shippingValidation.shippingCost;
     const authUserId = user?.id ?? null;
 
     console.log(
@@ -293,8 +403,7 @@ export async function createPendingOrder(
       p_items: input.items,
       p_payment_method:
         input.payment_method,
-      p_shipping_cost:
-        input.shipping_cost,
+      p_shipping_cost: validatedShippingCost,
       p_notes: input.notes,
       p_auth_user_id: authUserId,
       p_address_id: input.address_id ?? null,
