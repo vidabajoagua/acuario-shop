@@ -267,6 +267,7 @@ const initialAttributeValues = Object.fromEntries((existingAttributeValues ?? []
                   <option value="">Sin marca del catálogo</option>
                   {(brands ?? []).map((brand) => <option key={brand.id} value={brand.id}>{brand.name}</option>)}
                 </select>
+                <input type="hidden" name="brand" value={product.brand ?? ""} />
                 {product.brand && !product.brand_id ? <p className="mt-1 text-xs text-muted-foreground">Marca histórica en texto: {product.brand}. Selecciona una marca del catálogo para normalizarla.</p> : null}
               </div>
 
