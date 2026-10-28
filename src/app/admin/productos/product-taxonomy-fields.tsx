@@ -111,7 +111,11 @@ export function ProductTaxonomyFields({
           <div className="grid gap-5 md:grid-cols-2">
             {categoryAttributes.map((attribute) => {
               const initial = initialAttributeValues[attribute.id];
-              const value = initial == null ? "" : Array.isArray(initial) ? initial.join(", ") : String(initial);
+              const value = initial == null
+                ? ""
+                : attribute.data_type === "range" && typeof initial === "object" && "min" in initial && "max" in initial
+                  ? `${String((initial as { min: unknown }).min)}-${String((initial as { max: unknown }).max)}`
+                  : Array.isArray(initial) ? initial.join(", ") : String(initial);
               const inputClass = "mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm";
               return <div key={attribute.id} className={["text","range","multiselect"].includes(attribute.data_type) ? "md:col-span-2" : ""}>
                 <label htmlFor={`attribute-${attribute.id}`} className="text-sm font-medium">
