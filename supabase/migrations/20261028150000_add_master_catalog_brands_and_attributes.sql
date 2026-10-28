@@ -82,7 +82,7 @@ create policy "Admins can manage product attribute definitions" on public.produc
   with check ((select private.is_admin()));
 drop policy if exists "Public can view active product attribute definitions" on public.product_attribute_definitions;
 create policy "Public can view active product attribute definitions" on public.product_attribute_definitions
-  for select to anon, authenticated using (is_active = true);
+  for select to anon, authenticated using (is_active = true and show_on_product_page = true);
 
 drop policy if exists "Admins can manage product attribute values" on public.product_attribute_values;
 create policy "Admins can manage product attribute values" on public.product_attribute_values
@@ -92,8 +92,13 @@ drop policy if exists "Public can view values for active products" on public.pro
 create policy "Public can view values for active products" on public.product_attribute_values
   for select to anon, authenticated using (
     exists (
-      select 1 from public.products p
-      where p.id = product_id and p.is_active = true
+      select 1
+      from public.products p
+      join public.product_attribute_definitions d on d.id = attribute_id
+      where p.id = product_id
+        and p.is_active = true
+        and d.is_active = true
+        and d.show_on_product_page = true
     )
   );
 
