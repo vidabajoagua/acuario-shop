@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 type CategoryOption = { id: string; name: string; slug: string };
 type TaxonomyTerm = {
