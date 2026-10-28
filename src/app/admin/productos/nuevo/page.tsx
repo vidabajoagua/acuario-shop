@@ -44,6 +44,17 @@ export default async function NuevoProductoPage() {
     throw new Error(`No se pudo cargar la clasificación de productos: ${taxonomyError.message}`);
   }
 
+  const { data: attributeDefinitions, error: attributesError } = await supabase
+    .from("product_attribute_definitions")
+    .select("id, category_id, name, slug, data_type, unit, options, is_required, is_active, sort_order")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (attributesError) {
+    throw new Error(`No se pudieron cargar los atributos del catálogo: ${attributesError.message}`);
+  }
+
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       {/* Encabezado */}
@@ -139,6 +150,7 @@ export default async function NuevoProductoPage() {
             <ProductTaxonomyFields
               categories={categories ?? []}
               terms={taxonomyTerms ?? []}
+              attributes={attributeDefinitions ?? []}
             />
 
             {/* Marca / SKU */}
