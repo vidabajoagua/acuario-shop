@@ -7,8 +7,6 @@ import {
   Boxes,
   Tags,
   Image,
-  ListTree,
-  SlidersHorizontal,
   Store,
   LogOut,
   ClipboardList,
