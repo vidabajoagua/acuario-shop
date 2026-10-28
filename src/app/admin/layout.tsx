@@ -7,6 +7,8 @@ import {
   Boxes,
   Tags,
   Image,
+  ListTree,
+  SlidersHorizontal,
   Store,
   LogOut,
   ClipboardList,
@@ -60,9 +62,15 @@ const navigation = [
     ],
   },
   {
-    label: "Categorías",
+    label: "Catálogo maestro",
     href: "/admin/categorias",
     icon: Tags,
+    children: [
+      { label: "Categorías", href: "/admin/categorias" },
+      { label: "Marcas", href: "/admin/marcas" },
+      { label: "Clasificaciones", href: "/admin/clasificacion" },
+      { label: "Atributos por categoría", href: "/admin/atributos" },
+    ],
   },
   {
     label: "Imágenes",
