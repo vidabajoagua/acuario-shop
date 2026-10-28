@@ -366,7 +366,56 @@ export async function createPendingOrder(
      */
     const admin = createAdminClient();
 
-    const shippingValidation = await validateShippingCost(admin, input);
+    let orderInput = input;
+
+    // Para usuarios autenticados, la ubicación de envío debe salir de la
+    // dirección guardada en la cuenta, no de los campos enviados por el navegador.
+    if (user && input.payment_method !== "efectivo") {
+      if (!input.address_id) {
+        return {
+          success: false,
+          error: "Debes seleccionar una dirección de entrega.",
+        };
+      }
+
+      const { data: customer, error: customerError } = await admin
+        .from("customers")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (customerError || !customer) {
+        return {
+          success: false,
+          error: "No se pudo validar la dirección de entrega de tu cuenta.",
+        };
+      }
+
+      const { data: address, error: addressError } = await admin
+        .from("addresses")
+        .select("province, city, parish, address, reference")
+        .eq("id", input.address_id)
+        .eq("customer_id", customer.id)
+        .maybeSingle();
+
+      if (addressError || !address) {
+        return {
+          success: false,
+          error: "La dirección seleccionada no pertenece a tu cuenta.",
+        };
+      }
+
+      orderInput = {
+        ...input,
+        province: address.province,
+        city: address.city,
+        parish: address.parish ?? "",
+        address: address.address,
+        reference: address.reference ?? "",
+      };
+    }
+
+    const shippingValidation = await validateShippingCost(admin, orderInput);
     if (!shippingValidation.valid) {
       return {
         success: false,
@@ -395,18 +444,18 @@ export async function createPendingOrder(
       p_last_name: input.last_name,
       p_email: input.email,
       p_phone: input.phone,
-      p_province: input.province,
-      p_city: input.city,
-      p_parish: input.parish,
-      p_address: input.address,
-      p_reference: input.reference,
+      p_province: orderInput.province,
+      p_city: orderInput.city,
+      p_parish: orderInput.parish,
+      p_address: orderInput.address,
+      p_reference: orderInput.reference,
       p_items: input.items,
       p_payment_method:
         input.payment_method,
       p_shipping_cost: validatedShippingCost,
       p_notes: input.notes,
       p_auth_user_id: authUserId,
-      p_address_id: input.address_id ?? null,
+      p_address_id: orderInput.address_id ?? null,
       p_recipient_is_other: input.recipient_is_other,
       p_recipient_first_name: input.recipient_first_name,
       p_recipient_last_name: input.recipient_last_name,
