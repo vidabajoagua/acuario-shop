@@ -59,6 +59,22 @@ const hasComparePrice =
   compareAtPrice !== null &&
   compareAtPrice > product.price;
 
+  function formatAttributeValue(value: unknown): string {
+    if (value === null || value === undefined || value === "") return "";
+    if (typeof value === "boolean") return value ? "Sí" : "No";
+    if (typeof value === "number" || typeof value === "string") return String(value);
+    if (Array.isArray(value)) return value.map((item) => String(item)).join(", ");
+    if (typeof value === "object" && "min" in value && "max" in value) {
+      const range = value as { min: unknown; max: unknown };
+      return `${String(range.min)}–${String(range.max)}`;
+    }
+    return "";
+  }
+
+  const visibleAttributes = (product.attributes ?? [])
+    .map((attribute) => ({ ...attribute, formattedValue: formatAttributeValue(attribute.value) }))
+    .filter((attribute) => attribute.formattedValue !== "");
+
   return (
     <main>
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-16">
@@ -112,6 +128,22 @@ const hasComparePrice =
                 product.short_description ??
                 ""}
             </p>
+
+            {visibleAttributes.length > 0 && (
+              <section className="mt-8 rounded-2xl border border-border p-5">
+                <h2 className="text-lg font-semibold">Características y cuidados</h2>
+                <dl className="mt-4 divide-y divide-border">
+                  {visibleAttributes.map((attribute) => (
+                    <div key={attribute.id} className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-2 sm:gap-4">
+                      <dt className="text-sm text-muted-foreground">{attribute.name}</dt>
+                      <dd className="text-sm font-medium">
+                        {attribute.formattedValue}{attribute.unit ? ` ${attribute.unit}` : ""}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
 
             <div className="mt-8 space-y-4">
               {/* Stock */}
