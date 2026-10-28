@@ -133,9 +133,14 @@ export async function updateProduct(
     formData.get("description") ?? "",
   ).trim();
 
-  const brand = String(
-    formData.get("brand") ?? "",
-  ).trim();
+  const brandId = String(formData.get("brand_id") ?? "").trim() || null;
+  let brand = String(formData.get("brand") ?? "").trim();
+  if (brandId) {
+    const { data: selectedBrand, error: selectedBrandError } = await supabase
+      .from("brands").select("id, name").eq("id", brandId).eq("is_active", true).maybeSingle();
+    if (selectedBrandError || !selectedBrand) throw new Error("La marca seleccionada no es válida o está inactiva.");
+    brand = selectedBrand.name;
+  }
 
   const sku = String(
     formData.get("sku") ?? "",
@@ -252,6 +257,7 @@ export async function updateProduct(
       .update({
         category_id: categoryId,
         taxonomy_term_id: taxonomyTermId,
+        brand_id: brandId,
         name,
         slug,
         short_description:
