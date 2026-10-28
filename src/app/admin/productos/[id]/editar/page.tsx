@@ -90,6 +90,17 @@ export default async function EditProductPage({
     throw new Error(`No se pudo cargar la clasificación de productos: ${taxonomyError.message}`);
   }
 
+  const { data: attributeDefinitions, error: attributesError } = await supabase
+    .from("product_attribute_definitions")
+    .select("id, category_id, name, slug, data_type, unit, options, is_required, is_active, sort_order")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (attributesError) {
+    throw new Error(`No se pudieron cargar los atributos del catálogo: ${attributesError.message}`);
+  }
+
   // Obtener inventario
   const { data: inventory } =
   await supabase
@@ -130,6 +141,16 @@ const images = (productImages ?? []).map((image) => ({
     .getPublicUrl(image.storage_path)
     .data.publicUrl,
 }));
+
+const { data: existingAttributeValues, error: attributeValuesError } = await supabase
+  .from("product_attribute_values")
+  .select("attribute_id, value")
+  .eq("product_id", id);
+if (attributeValuesError) {
+  throw new Error(`No se pudieron cargar los atributos del producto: ${attributeValuesError.message}`);
+}
+const initialAttributeValues = Object.fromEntries((existingAttributeValues ?? []).map((item) => [item.attribute_id, item.value]));
+
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
@@ -227,6 +248,8 @@ const images = (productImages ?? []).map((image) => ({
             <ProductTaxonomyFields
               categories={categories ?? []}
               terms={taxonomyTerms ?? []}
+              attributes={attributeDefinitions ?? []}
+              initialAttributeValues={initialAttributeValues}
               initialCategoryId={product.category_id}
               initialTermId={product.taxonomy_term_id}
             />
