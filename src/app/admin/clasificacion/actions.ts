@@ -46,3 +46,49 @@ export async function createTaxonomyTerm(formData: FormData) {
   revalidatePath("/admin/productos/nuevo");
   redirect("/admin/clasificacion");
 }
+
+
+async function requireTaxonomyAdmin() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autenticado.");
+  const { data: profile } = await supabase.from("profiles")
+    .select("role").eq("id", user.id).maybeSingle();
+  if (profile?.role !== "admin") throw new Error("Solo un administrador puede gestionar la clasificación.");
+  return supabase;
+}
+
+export async function updateTaxonomyTerm(formData: FormData) {
+  const supabase = await requireTaxonomyAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const slug = normalizeSlug(String(formData.get("slug") ?? "").trim() || name);
+  const sortOrder = Number(formData.get("sort_order") ?? 0);
+  if (!id || !name || !slug) throw new Error("Nombre y slug son obligatorios.");
+  if (!Number.isInteger(sortOrder) || sortOrder < 0) throw new Error("El orden debe ser un entero no negativo.");
+
+  const { error } = await supabase.from("product_taxonomy_terms")
+    .update({ name, slug, sort_order: sortOrder })
+    .eq("id", id);
+  if (error) {
+    if (error.code === "23505") throw new Error("Ya existe una clasificación con ese slug en ese nivel.");
+    throw new Error(`No se pudo actualizar la clasificación: ${error.message}`);
+  }
+  revalidatePath("/admin/clasificacion");
+  revalidatePath("/admin/productos/nuevo");
+  redirect("/admin/clasificacion");
+}
+
+export async function setTaxonomyTermActive(formData: FormData) {
+  const supabase = await requireTaxonomyAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const active = String(formData.get("active") ?? "") === "true";
+  if (!id) throw new Error("Falta la clasificación que deseas actualizar.");
+
+  const { error } = await supabase.from("product_taxonomy_terms")
+    .update({ is_active: active }).eq("id", id);
+  if (error) throw new Error(`No se pudo cambiar el estado: ${error.message}`);
+  revalidatePath("/admin/clasificacion");
+  revalidatePath("/admin/productos/nuevo");
+  redirect("/admin/clasificacion");
+}
