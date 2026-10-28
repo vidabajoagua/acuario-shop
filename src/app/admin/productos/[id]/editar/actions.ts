@@ -14,6 +14,67 @@ function normalizeSlug(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+
+async function saveProductAttributeValues(
+  supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
+  productId: string,
+  categoryId: string,
+  formData: FormData,
+) {
+  const { data: definitions, error: definitionsError } = await supabase
+    .from("product_attribute_definitions")
+    .select("id, name, data_type, is_required, options")
+    .eq("category_id", categoryId)
+    .eq("is_active", true);
+  if (definitionsError) throw new Error("No se pudieron validar los atributos del producto.");
+
+  const values: { product_id: string; attribute_id: string; value: unknown }[] = [];
+  for (const definition of definitions ?? []) {
+    const key = `attribute_${definition.id}`;
+    const submitted = formData.getAll(key).map((item) => String(item).trim()).filter(Boolean);
+    if (definition.is_required && submitted.length === 0) {
+      throw new Error(`El atributo "${definition.name}" es obligatorio.`);
+    }
+    if (submitted.length === 0) continue;
+    let value: unknown;
+    if (definition.data_type === "multiselect") {
+      const allowed = Array.isArray(definition.options) ? definition.options : [];
+      if (submitted.some((item) => !allowed.includes(item))) throw new Error(`Opción no válida para "${definition.name}".`);
+      value = submitted;
+    } else {
+      const raw = submitted[0];
+      if (definition.data_type === "select") {
+        const allowed = Array.isArray(definition.options) ? definition.options : [];
+        if (!allowed.includes(raw)) throw new Error(`Opción no válida para "${definition.name}".`);
+        value = raw;
+      } else if (definition.data_type === "number") {
+        const numeric = Number(raw);
+        if (!Number.isFinite(numeric)) throw new Error(`El atributo "${definition.name}" debe ser numérico.`);
+        value = numeric;
+      } else if (definition.data_type === "boolean") {
+        if (raw !== "true" && raw !== "false") throw new Error(`Valor no válido para "${definition.name}".`);
+        value = raw === "true";
+      } else if (definition.data_type === "range") {
+        const match = raw.match(/^\s*(-?\d+(?:\.\d+)?)\s*(?:-|–|a)\s*(-?\d+(?:\.\d+)?)\s*$/i);
+        if (!match) throw new Error(`Usa un rango válido para "${definition.name}", por ejemplo 22-28.`);
+        const min = Number(match[1]); const max = Number(match[2]);
+        if (min > max) throw new Error(`El rango de "${definition.name}" debe empezar por el valor menor.`);
+        value = { min, max };
+      } else value = raw;
+    }
+    values.push({ product_id: productId, attribute_id: definition.id, value });
+  }
+
+  const { error: deleteError } = await supabase.from("product_attribute_values")
+    .delete().eq("product_id", productId)
+    .not("attribute_id", "in", `(${(definitions ?? []).map((d) => d.id).join(",")})`);
+  if (deleteError && (definitions ?? []).length > 0) throw new Error("No se pudieron sincronizar los atributos del producto.");
+  if (values.length) {
+    const { error } = await supabase.from("product_attribute_values").upsert(values, { onConflict: "product_id,attribute_id" });
+    if (error) throw new Error(`No se pudieron guardar las características: ${error.message}`);
+  }
+}
+
 export async function updateProduct(
   productId: string,
   formData: FormData,
@@ -211,6 +272,8 @@ export async function updateProduct(
       `No se pudo actualizar el producto: ${productError.message}`,
     );
   }
+
+  await saveProductAttributeValues(supabase, productId, categoryId, formData);
 
   // Buscar inventario existente
   const { data: existingInventory } =
