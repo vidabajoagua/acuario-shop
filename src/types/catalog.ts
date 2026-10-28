@@ -28,6 +28,14 @@ export type ProductTaxonomyTerm = {
   sort_order: number;
 };
 
+export type CatalogProductAttribute = {
+  id: string;
+  name: string;
+  unit: string | null;
+  data_type: string;
+  value: unknown;
+};
+
 export type CatalogProduct = {
   id: string;
   category_id: string;
@@ -52,4 +60,5 @@ export type CatalogProduct = {
   inventory: ProductInventory | null;
 
   images: ProductImage[];
+  attributes?: CatalogProductAttribute[];
 };
