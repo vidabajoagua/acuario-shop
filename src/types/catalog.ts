@@ -19,7 +19,16 @@ export type ProductImage = {
   url: string;
 };
 
-export type ProductTaxonomyTerm = {\n  id: string;\n  category_id: string;\n  parent_id: string | null;\n  name: string;\n  slug: string;\n  sort_order: number;\n};\n\nexport type CatalogProduct = {
+export type ProductTaxonomyTerm = {
+  id: string;
+  category_id: string;
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  sort_order: number;
+};
+
+export type CatalogProduct = {
   id: string;
   category_id: string;
 
