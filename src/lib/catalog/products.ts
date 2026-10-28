@@ -9,6 +9,10 @@ const BUCKET_NAME = "product-images";
 const productSelect = `
   id,
   category_id,
+  taxonomy_term_id,
+  taxonomy:product_taxonomy_terms!products_taxonomy_term_id_fkey (
+    id, category_id, parent_id, name, slug, sort_order
+  ),
   name,
   slug,
   short_description,
