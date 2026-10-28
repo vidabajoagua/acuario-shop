@@ -34,6 +34,7 @@ export default async function EditProductPage({
         id,
         category_id,
         taxonomy_term_id,
+        brand_id,
         name,
         slug,
         short_description,
@@ -78,6 +79,10 @@ export default async function EditProductPage({
       `No se pudieron cargar las categorías: ${categoriesError.message}`,
     );
   }
+
+  const { data: brands, error: brandsError } = await supabase
+    .from("brands").select("id, name").eq("is_active", true).order("sort_order").order("name");
+  if (brandsError) throw new Error(`No se pudieron cargar las marcas: ${brandsError.message}`);
 
   const { data: taxonomyTerms, error: taxonomyError } = await supabase
     .from("product_taxonomy_terms")
@@ -257,21 +262,12 @@ const initialAttributeValues = Object.fromEntries((existingAttributeValues ?? []
             {/* Marca / SKU */}
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label
-                  htmlFor="brand"
-                  className="text-sm font-medium"
-                >
-                  Marca
-                </label>
-
-                <input
-                  id="brand"
-                  name="brand"
-                  defaultValue={
-                    product.brand ?? ""
-                  }
-                  className="mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
+                <label htmlFor="brand_id" className="text-sm font-medium">Marca</label>
+                <select id="brand_id" name="brand_id" defaultValue={product.brand_id ?? ""} className="mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm">
+                  <option value="">Sin marca del catálogo</option>
+                  {(brands ?? []).map((brand) => <option key={brand.id} value={brand.id}>{brand.name}</option>)}
+                </select>
+                {product.brand && !product.brand_id ? <p className="mt-1 text-xs text-muted-foreground">Marca histórica en texto: {product.brand}. Selecciona una marca del catálogo para normalizarla.</p> : null}
               </div>
 
               <div>
