@@ -55,6 +55,10 @@ export async function updateProduct(
     formData.get("category_id") ?? "",
   ).trim();
 
+  const taxonomyTermId = String(
+    formData.get("taxonomy_term_id") ?? "",
+  ).trim() || null;
+
   const shortDescription = String(
     formData.get("short_description") ?? "",
   ).trim();
@@ -115,6 +119,20 @@ export async function updateProduct(
     );
   }
 
+  if (taxonomyTermId) {
+    const { data: taxonomyTerm, error: taxonomyTermError } = await supabase
+      .from("product_taxonomy_terms")
+      .select("id, category_id")
+      .eq("id", taxonomyTermId)
+      .eq("category_id", categoryId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (taxonomyTermError || !taxonomyTerm) {
+      throw new Error("La clasificación seleccionada no es válida para esta categoría.");
+    }
+  }
+
   if (!slug) {
     throw new Error(
       "El slug del producto no es válido.",
@@ -167,6 +185,7 @@ export async function updateProduct(
       .from("products")
       .update({
         category_id: categoryId,
+        taxonomy_term_id: taxonomyTermId,
         name,
         slug,
         short_description:
