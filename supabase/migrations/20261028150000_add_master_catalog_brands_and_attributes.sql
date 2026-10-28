@@ -23,6 +23,32 @@ alter table public.products
   add column if not exists brand_id uuid null references public.brands(id) on delete set null;
 create index if not exists products_brand_id_idx on public.products(brand_id);
 
+-- Backfill the legacy free-text brand field without overwriting existing brand_id links.
+-- ON CONFLICT DO NOTHING makes this safe to rerun if the migration is re-applied.
+insert into public.brands (name, slug)
+select distinct
+  trim(p.brand) as name,
+  trim(both '-' from regexp_replace(
+    regexp_replace(lower(trim(p.brand)), '[^a-z0-9]+', '-', 'g'),
+    '-+', '-', 'g'
+  )) as slug
+from public.products p
+where p.brand is not null
+  and length(trim(p.brand)) > 0
+  and length(trim(both '-' from regexp_replace(
+    regexp_replace(lower(trim(p.brand)), '[^a-z0-9]+', '-', 'g'),
+    '-+', '-', 'g'
+  ))) > 0
+on conflict do nothing;
+
+update public.products p
+set brand_id = b.id
+from public.brands b
+where p.brand_id is null
+  and p.brand is not null
+  and length(trim(p.brand)) > 0
+  and lower(trim(b.name)) = lower(trim(p.brand));
+
 create table if not exists public.product_attribute_definitions (
   id uuid primary key default gen_random_uuid(),
   category_id uuid not null references public.categories(id) on delete cascade,
@@ -94,8 +120,9 @@ create policy "Public can view values for active products" on public.product_att
     exists (
       select 1
       from public.products p
-      join public.product_attribute_definitions d on d.id = attribute_id
-      where p.id = product_id
+      join public.product_attribute_definitions d
+        on d.id = public.product_attribute_values.attribute_id
+      where p.id = public.product_attribute_values.product_id
         and p.is_active = true
         and d.is_active = true
         and d.show_on_product_page = true
