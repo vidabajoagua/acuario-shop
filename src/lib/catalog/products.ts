@@ -109,10 +109,43 @@ export async function getProductBySlug(
     return null;
   }
 
-  return normalizeProduct(
-    data as unknown as CatalogProduct,
-    supabase,
-  );
+  const { data: attributeValues, error: attributeValuesError } = await supabase
+    .from("product_attribute_values")
+    .select("attribute_id, value")
+    .eq("product_id", data.id);
+
+  if (attributeValuesError) {
+    throw new Error(`No se pudieron cargar las características del producto: ${attributeValuesError.message}`);
+  }
+
+  const attributeIds = (attributeValues ?? []).map((item) => item.attribute_id);
+  let attributes: NonNullable<CatalogProduct["attributes"]> = [];
+
+  if (attributeIds.length > 0) {
+    const { data: definitions, error: definitionsError } = await supabase
+      .from("product_attribute_definitions")
+      .select("id, name, unit, data_type")
+      .in("id", attributeIds)
+      .eq("is_active", true)
+      .eq("show_on_product_page", true)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (definitionsError) {
+      throw new Error(`No se pudieron cargar las características visibles: ${definitionsError.message}`);
+    }
+
+    const valuesByAttribute = new Map((attributeValues ?? []).map((item) => [item.attribute_id, item.value]));
+    attributes = (definitions ?? []).map((definition) => ({
+      ...definition,
+      value: valuesByAttribute.get(definition.id),
+    }));
+  }
+
+  return {
+    ...normalizeProduct(data as unknown as CatalogProduct, supabase),
+    attributes,
+  };
 }
 export async function getCategories(): Promise<ProductCategory[]> {
   const supabase = await createClient();
