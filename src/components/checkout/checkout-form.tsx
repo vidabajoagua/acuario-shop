@@ -351,37 +351,34 @@ useEffect(() => {
 ]);
 
 const shippingCalculation =
-  shippingSettings && form.parish
-    ? shippingCoverage?.enabled
-      ? shippingCoverage.shipping_cost !== null
-        ? subtotal >= shippingSettings.free_shipping_minimum
+  shippingSettings && subtotal >= shippingSettings.free_shipping_minimum
+    ? {
+        status: "free" as const,
+        cost: 0 as const,
+        message: "Envío gratis" as const,
+        free_shipping_minimum: shippingSettings.free_shipping_minimum,
+      }
+    : shippingSettings && form.parish
+      ? shippingCoverage?.enabled
+        ? shippingCoverage.shipping_cost !== null
           ? {
-              status: "free" as const,
-              cost: 0 as const,
-              message: "Envío gratis" as const,
-              free_shipping_minimum:
-                shippingSettings.free_shipping_minimum,
-            }
-          : {
               status: "automatic" as const,
               cost: shippingCoverage.shipping_cost,
               message: "Envío calculado" as const,
-              free_shipping_minimum:
-                shippingSettings.free_shipping_minimum,
+              free_shipping_minimum: shippingSettings.free_shipping_minimum,
             }
-        : calculateShipping({
-            subtotal,
-            distance_km: null,
-            config: shippingSettings,
-          })
-      : {
-          status: "confirm" as const,
-          cost: null,
-          message: "Envío por confirmar" as const,
-          free_shipping_minimum:
-            shippingSettings.free_shipping_minimum,
-        }
-    : null;
+          : calculateShipping({
+              subtotal,
+              distance_km: null,
+              config: shippingSettings,
+            })
+        : {
+            status: "confirm" as const,
+            cost: null,
+            message: "Envío por confirmar" as const,
+            free_shipping_minimum: shippingSettings.free_shipping_minimum,
+          }
+      : null;
 
 const shippingCost =
   shippingCalculation?.cost ?? null;
