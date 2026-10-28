@@ -9,6 +9,7 @@ import { ImageManager } from "./image-manager";
 
 import { createClient } from "@/lib/supabase/server";
 import { updateProduct } from "./actions";
+import { ProductTaxonomyFields } from "../../product-taxonomy-fields";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export default async function EditProductPage({
       .select(`
         id,
         category_id,
+        taxonomy_term_id,
         name,
         slug,
         short_description,
@@ -75,6 +77,17 @@ export default async function EditProductPage({
     throw new Error(
       `No se pudieron cargar las categorías: ${categoriesError.message}`,
     );
+  }
+
+  const { data: taxonomyTerms, error: taxonomyError } = await supabase
+    .from("product_taxonomy_terms")
+    .select("id, category_id, parent_id, name, slug, sort_order")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (taxonomyError) {
+    throw new Error(`No se pudo cargar la clasificación de productos: ${taxonomyError.message}`);
   }
 
   // Obtener inventario
@@ -211,38 +224,12 @@ const images = (productImages ?? []).map((image) => ({
               </p>
             </div>
 
-            {/* Categoría */}
-            <div>
-              <label
-                htmlFor="category_id"
-                className="text-sm font-medium"
-              >
-                Categoría *
-              </label>
-
-              <select
-                id="category_id"
-                name="category_id"
-                required
-                defaultValue={
-                  product.category_id
-                }
-                className="mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="" disabled>
-                  Selecciona una categoría
-                </option>
-
-                {categories?.map((category) => (
-                  <option
-                    key={category.id}
-                    value={category.id}
-                  >
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <ProductTaxonomyFields
+              categories={categories ?? []}
+              terms={taxonomyTerms ?? []}
+              initialCategoryId={product.category_id}
+              initialTermId={product.taxonomy_term_id}
+            />
 
             {/* Marca / SKU */}
             <div className="grid gap-5 md:grid-cols-2">
