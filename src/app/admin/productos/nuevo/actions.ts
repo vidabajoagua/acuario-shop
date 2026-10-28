@@ -67,7 +67,7 @@ async function saveProductAttributeValues(
   const { data: existingValues, error: existingValuesError } = await supabase
     .from("product_attribute_values").select("id, attribute_id").eq("product_id", productId);
   if (existingValuesError) throw new Error("No se pudieron sincronizar los atributos del producto.");
-  const validIds = new Set((definitions ?? []).map((definition) => definition.id));
+  const validIds = new Set(values.map((item) => item.attribute_id));
   const obsoleteIds = (existingValues ?? []).filter((item) => !validIds.has(item.attribute_id)).map((item) => item.id);
   if (obsoleteIds.length) {
     const { error: deleteError } = await supabase.from("product_attribute_values").delete().in("id", obsoleteIds);
