@@ -118,26 +118,34 @@ export async function setTaxonomyTermActive(formData: FormData) {
   redirect("/admin/clasificacion");
 }
 
-export async function deleteTaxonomyTerm(formData: FormData) {
-  const supabase = await requireTaxonomyAdmin();
-  const id = String(formData.get("id") ?? "").trim();
-  if (!id) throw new Error("Falta la clasificación que deseas eliminar.");
+export async function deleteTaxonomyTerm(
+  _previousState: { error: string | null },
+  formData: FormData,
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = await requireTaxonomyAdmin();
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: "No se identificó la clasificación que deseas eliminar." };
 
-  const { count: assignedProducts, error: productsError } = await supabase
-    .from("products").select("id", { count: "exact", head: true }).eq("taxonomy_term_id", id);
-  if (productsError) throw new Error("No se pudo comprobar si hay productos asignados; no se eliminó la opción.");
-  if ((assignedProducts ?? 0) > 0) throw new Error("No se puede eliminar: hay productos asignados a esta clasificación. Desactívala o reasigna esos productos primero.");
+    const { count: assignedProducts, error: productsError } = await supabase
+      .from("products").select("id", { count: "exact", head: true }).eq("taxonomy_term_id", id);
+    if (productsError) return { error: "No pudimos comprobar si hay productos asignados. No se eliminó nada; inténtalo nuevamente." };
+    if ((assignedProducts ?? 0) > 0) return { error: "No se puede eliminar esta clasificación porque tiene productos asignados. Reasigna esos productos o desactiva la opción." };
 
-  const { count: childTerms, error: childrenError } = await supabase
-    .from("product_taxonomy_terms").select("id", { count: "exact", head: true }).eq("parent_id", id);
-  if (childrenError) throw new Error("No se pudo comprobar si tiene subclasificaciones; no se eliminó la opción.");
-  if ((childTerms ?? 0) > 0) throw new Error("No se puede eliminar: esta opción tiene subclasificaciones. Reasigna o elimina primero sus niveles inferiores.");
+    const { count: childTerms, error: childrenError } = await supabase
+      .from("product_taxonomy_terms").select("id", { count: "exact", head: true }).eq("parent_id", id);
+    if (childrenError) return { error: "No pudimos comprobar si existen subclasificaciones. No se eliminó nada; inténtalo nuevamente." };
+    if ((childTerms ?? 0) > 0) return { error: "No se puede eliminar esta clasificación porque tiene subclasificaciones. Reasigna o elimina primero sus niveles inferiores." };
 
-  const { error } = await supabase.from("product_taxonomy_terms").delete().eq("id", id);
-  if (error) throw new Error(`No se pudo eliminar la clasificación: ${error.message}`);
+    const { error } = await supabase.from("product_taxonomy_terms").delete().eq("id", id);
+    if (error) return { error: "No se pudo eliminar la clasificación. Puede tener relaciones que impiden borrarla; revisa sus dependencias e inténtalo nuevamente." };
 
-  revalidatePath("/admin/clasificacion");
-  revalidatePath("/admin/productos/nuevo");
-  redirect("/admin/clasificacion?notice=deleted");
+    revalidatePath("/admin/clasificacion");
+    revalidatePath("/admin/productos/nuevo");
+    redirect("/admin/clasificacion?notice=deleted");
+  } catch (error) {
+    // Next.js redirect is implemented as a thrown control-flow signal; preserve it.
+    if (error && typeof error === "object" && "digest" in error && String(error.digest).startsWith("NEXT_REDIRECT")) throw error;
+    return { error: "Ocurrió un error inesperado al eliminar la clasificación. No se pudo confirmar el borrado." };
+  }
 }
-
