@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { setTaxonomyTermActive, updateTaxonomyTerm } from "./actions";
+import { deleteTaxonomyTerm, setTaxonomyTermActive, updateTaxonomyTerm } from "./actions";
 
 type TaxonomyTerm = {
   id: string;
@@ -57,10 +57,15 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
                         <input type="hidden" name="id" value={term.id} />
                         <div><label htmlFor={"term-name-" + term.id} className="text-xs font-medium">Nombre</label><input id={"term-name-" + term.id} name="name" required defaultValue={term.name} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm" /></div>
                         <div><label htmlFor={"term-slug-" + term.id} className="text-xs font-medium">Slug</label><input id={"term-slug-" + term.id} name="slug" required defaultValue={term.slug} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm" /></div>
+                        <div><label htmlFor={"term-parent-" + term.id} className="text-xs font-medium">Depende de</label><select id={"term-parent-" + term.id} name="parent_id" defaultValue={term.parent_id ?? ""} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm"><option value="">Nivel principal</option>{terms.filter((candidate) => candidate.category_id === term.category_id && candidate.id !== term.id).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.name}</option>)}</select><p className="mt-1 text-[11px] text-muted-foreground">Solo se muestran opciones de la misma categoría. No se permiten ciclos.</p></div>
                         <div><label htmlFor={"term-order-" + term.id} className="text-xs font-medium">Orden de visualización</label><input id={"term-order-" + term.id} name="sort_order" type="number" min="0" step="1" required defaultValue={term.sort_order} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm" /><p className="mt-1 text-[11px] text-muted-foreground">Menor número = posición anterior.</p></div>
                         <button type="submit" className="h-9 w-full rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90">Guardar cambios</button>
                       </form>
                       <form action={setTaxonomyTermActive} className="mt-3 border-t border-border pt-3"><input type="hidden" name="id" value={term.id} /><input type="hidden" name="active" value={String(!term.is_active)} /><button type="submit" className="text-xs font-medium text-primary underline underline-offset-4">{term.is_active ? "Desactivar opción" : "Reactivar opción"}</button></form>
+                      <form action={deleteTaxonomyTerm} className="mt-3" onSubmit={(event) => { if (!window.confirm("¿Eliminar definitivamente esta opción? Solo se permitirá si no tiene productos ni subclasificaciones asignados.")) event.preventDefault(); }}>
+                        <input type="hidden" name="id" value={term.id} />
+                        <button type="submit" className="text-xs font-medium text-red-700 underline underline-offset-4">Eliminar definitivamente</button>
+                      </form>
                     </div>
                   </details>
                 </td>
