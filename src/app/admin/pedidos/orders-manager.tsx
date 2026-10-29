@@ -111,18 +111,33 @@ function getPaymentMethodLabel(method: string) {
 
 function paymentStatusClass(status: string) {
   if (status === "paid") {
-    return "bg-primary/10 text-primary";
+    return "bg-emerald-100 text-emerald-800";
   }
 
   if (status === "waiting_verification") {
-    return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400";
+    return "bg-amber-100 text-amber-800";
   }
 
   if (status === "rejected") {
-    return "bg-destructive/10 text-destructive";
+    return "bg-rose-100 text-rose-800";
   }
 
-  return "bg-secondary text-foreground";
+  if (status === "refunded") {
+    return "bg-violet-100 text-violet-800";
+  }
+
+  return "bg-slate-100 text-slate-700";
+}
+
+function shippingMethodClass(method: string) {
+  const classes: Record<string, string> = {
+    cobertura: "bg-emerald-100 text-emerald-800",
+    gratis: "bg-green-100 text-green-800",
+    presencial: "bg-sky-100 text-sky-800",
+    por_confirmar: "bg-amber-100 text-amber-800",
+  };
+
+  return classes[method] ?? "bg-slate-100 text-slate-700";
 }
 
 export function OrdersManager({
@@ -477,7 +492,7 @@ export function OrdersManager({
                           </span>
                         )}
 
-                        <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
+                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${shippingMethodClass(order.shipping_method)}`}>
                           {getShippingMethodLabel(
                             order.shipping_method,
                           )}
