@@ -519,8 +519,8 @@ export function CategoriesManager({
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                           category.is_active
-                            ? "bg-primary/10 text-primary"
-                            : "bg-muted text-muted-foreground"
+                            ? "bg-emerald-200 text-emerald-950"
+                            : "bg-amber-100 text-amber-900"
                         }`}
                       >
                         {category.is_active ? "Activa" : "Inactiva"}
@@ -549,6 +549,7 @@ export function CategoriesManager({
                     variant="outline"
                     size="sm"
                     onClick={() => openEditForm(category)}
+                    className="rounded-xl border border-sky-300 bg-sky-100 text-sky-800 hover:bg-sky-200 hover:text-sky-950"
                   >
                     <Edit3 className="mr-2 h-4 w-4" />
                     Editar
@@ -561,8 +562,8 @@ export function CategoriesManager({
                     disabled={loadingId === category.id}
                     className={
                         category.is_active
-                        ? "border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800"
-                        : "border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
+                        ? "rounded-xl border border-emerald-300 bg-emerald-200 text-emerald-950 hover:bg-emerald-300 hover:text-emerald-950"
+                        : "rounded-xl border border-amber-300 bg-amber-200 text-amber-950 hover:bg-amber-300 hover:text-amber-950"
                     }
                   >
                     {loadingId === category.id ? (
@@ -582,6 +583,7 @@ export function CategoriesManager({
                       category.product_count > 0 ||
                       loadingId === category.id
                     }
+                    className="rounded-xl border border-rose-300 bg-rose-100 text-rose-800 hover:bg-rose-200 hover:text-rose-950 disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Eliminar
