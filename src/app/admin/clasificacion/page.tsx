@@ -6,7 +6,8 @@ import TaxonomyTermsTable from "./TaxonomyTermsTable";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProductTaxonomyAdminPage() {
+export default async function ProductTaxonomyAdminPage({ searchParams }: { searchParams: Promise<{ notice?: string }> }) {
+  const { notice } = await searchParams;
   const supabase = await createClient();
   const [
     { data: categories, error: categoriesError },
@@ -46,6 +47,16 @@ export default async function ProductTaxonomyAdminPage() {
         </div>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Organiza los productos por categoría y niveles. El orden define la posición de las opciones donde se utilice esta clasificación. Puedes desactivar opciones antiguas sin perder sus relaciones.</p>
       </div>
+
+      {notice === "deleted" && (
+        <div role="status" className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
+          <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 font-bold">✓</span>
+          <div>
+            <p className="text-sm font-semibold">¡Clasificación eliminada exitosamente!</p>
+            <p className="mt-1 text-sm">La opción se eliminó y la lista se actualizó correctamente.</p>
+          </div>
+        </div>
+      )}
 
       <CreateTaxonomyTermForm
         categories={(categories ?? []).map((category) => ({ id: category.id, name: category.name }))}
