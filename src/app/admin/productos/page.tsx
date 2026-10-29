@@ -248,7 +248,7 @@ export default async function AdminProductosPage() {
                             href={`/producto/${product.slug}`}
                             target="_blank"
                             aria-label={`Ver ${product.name}`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-violet-200 bg-violet-50 text-violet-700 transition-colors hover:bg-violet-100"
                           >
                             <Eye size={16} />
                           </Link>
@@ -256,7 +256,7 @@ export default async function AdminProductosPage() {
                           <Link
                             href={`/admin/productos/${product.id}/editar`}
                             aria-label={`Editar ${product.name}`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-sky-200 bg-sky-50 text-sky-700 transition-colors hover:bg-sky-100"
                           >
                             <Pencil size={16} />
                           </Link>
