@@ -16,8 +16,8 @@ export default async function ProductTaxonomyAdminPage() {
     supabase.from("product_taxonomy_terms").select("id,category_id,parent_id,name,slug,sort_order,is_active").order("category_id").order("sort_order").order("name"),
   ]);
 
-  if (categoriesError) throw new Error(\`No se pudieron cargar las categorías: \${categoriesError.message}\`);
-  if (termsError) throw new Error(\`No se pudo cargar la clasificación: \${termsError.message}\`);
+  if (categoriesError) throw new Error(`No se pudieron cargar las categorías: ${categoriesError.message}`);
+  if (termsError) throw new Error(`No se pudo cargar la clasificación: ${termsError.message}`);
 
   const categoryNames = new Map((categories ?? []).map((item) => [item.id, item.name]));
   const termNames = new Map((terms ?? []).map((item) => [item.id, item.name]));
