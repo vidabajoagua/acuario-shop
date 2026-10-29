@@ -31,7 +31,7 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
   return (
     <section className="rounded-2xl border border-border bg-background p-4 md:p-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
-        <div><h2 className="text-base font-semibold">Opciones registradas</h2><p className="mt-1 text-xs text-muted-foreground">Busca, filtra y edita solo la opción que necesites.</p></div>
+        <div><h2 className="text-base font-semibold">Gestionar opciones y niveles</h2><p className="mt-1 text-xs text-muted-foreground">Aquí administras los valores que aparecen en «Depende de»: edita su categoría y nivel superior, o desactiva y elimina opciones sin dependencias.</p></div>
         <span className="text-xs text-muted-foreground">{filteredTerms.length} de {terms.length} opciones</span>
       </div>
       <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_190px]">
