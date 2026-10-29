@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { deleteTaxonomyTerm, setTaxonomyTermActive, updateTaxonomyTerm } from "./actions";
 
 type TaxonomyTerm = {
@@ -20,6 +20,7 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TaxonomyTerm | null>(null);
+  const [deleteState, deleteAction, isDeleting] = useActionState(deleteTaxonomyTerm, { error: null as string | null });
 
   const filteredTerms = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
@@ -94,10 +95,11 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
                 <p className="mt-2 text-sm text-muted-foreground">Solo se podrá eliminar si no tiene productos ni subclasificaciones asignados.</p>
               </div>
             </div>
-            <form action={deleteTaxonomyTerm} className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            {deleteState.error && <div role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"><p className="font-semibold">No se pudo eliminar la clasificación</p><p className="mt-1">{deleteState.error}</p></div>}
+            <form action={deleteAction} className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <input type="hidden" name="id" value={deleteTarget.id} />
               <button type="button" onClick={() => setDeleteTarget(null)} className="h-10 rounded-lg border border-border px-4 text-sm font-medium hover:bg-muted">Cancelar</button>
-              <button type="submit" className="h-10 rounded-lg bg-red-700 px-4 text-sm font-medium text-white hover:bg-red-800">Sí, eliminar</button>
+              <button type="submit" disabled={isDeleting} className="h-10 rounded-lg bg-red-700 px-4 text-sm font-medium text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60">{isDeleting ? "Eliminando…" : "Sí, eliminar"}</button>
             </form>
           </section>
         </div>
