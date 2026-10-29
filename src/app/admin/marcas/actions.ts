@@ -50,3 +50,27 @@ export async function toggleBrandStatus(formData: FormData) {
   revalidatePath("/admin/productos/nuevo");
   redirect("/admin/marcas");
 }
+
+export async function updateBrand(formData: FormData) {
+  const supabase = await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const slug = slugify(String(formData.get("slug") ?? "").trim() || name);
+  const description = String(formData.get("description") ?? "").trim();
+  const websiteUrl = String(formData.get("website_url") ?? "").trim();
+  const sortOrder = Number(formData.get("sort_order") ?? 0);
+  if (!id || !name || !slug) throw new Error("ID, nombre y slug son obligatorios.");
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error("El slug no es válido.");
+  if (!Number.isInteger(sortOrder) || sortOrder < 0) throw new Error("El orden debe ser un entero no negativo.");
+  if (websiteUrl && !/^https?:\/\//i.test(websiteUrl)) throw new Error("La web debe comenzar con http:// o https://.");
+  const { error } = await supabase.from("brands").update({
+    name, slug, description: description || null, website_url: websiteUrl || null,
+    sort_order: sortOrder, updated_at: new Date().toISOString(),
+  }).eq("id", id);
+  if (error?.code === "23505") throw new Error("Ya existe otra marca con ese nombre o slug.");
+  if (error) throw new Error("No se pudo actualizar la marca.");
+  revalidatePath("/admin/marcas");
+  revalidatePath("/admin/productos/nuevo");
+  revalidatePath("/tienda");
+  redirect("/admin/marcas?notice=updated");
+}
