@@ -76,11 +76,11 @@ export const orderStatusMeta: Record<
   cancelled: {
     label: "Cancelado",
     badgeClass:
-      "border-red-500/25 bg-red-500/10 text-red-700 dark:border-red-400/25 dark:bg-red-400/10 dark:text-red-300",
+      "border-rose-200 bg-rose-50 text-rose-700",
     dotClass:
-      "bg-red-500 dark:bg-red-400",
+      "bg-rose-500",
     softClass:
-      "border-red-500/20 bg-red-500/5 text-red-800 dark:border-red-400/20 dark:bg-red-400/5 dark:text-red-200",
+      "border-rose-200 bg-rose-50 text-rose-800",
     buttonClass:
       "bg-red-600 text-white hover:bg-red-700",
   },
