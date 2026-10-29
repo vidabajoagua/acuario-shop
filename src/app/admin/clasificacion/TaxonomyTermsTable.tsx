@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
+import { Pencil, Power, Trash2 } from "lucide-react";
 import { deleteTaxonomyTerm, setTaxonomyTermActive, updateTaxonomyTerm } from "./actions";
 
 type TaxonomyTerm = {
@@ -50,10 +51,10 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
                 <td className="px-3 py-3"><p className="font-medium">{term.name}</p><p className="mt-0.5 text-xs text-muted-foreground">{term.slug}</p></td>
                 <td className="px-3 py-3"><p>{term.category_name}</p><p className="mt-0.5 text-xs text-muted-foreground">{term.parent_name}</p></td>
                 <td className="px-3 py-3 tabular-nums">{term.sort_order}</td>
-                <td className="px-3 py-3"><span className={term.is_active ? "inline-flex rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700" : "inline-flex rounded-full bg-muted px-2 py-1 text-[11px] text-muted-foreground"}>{term.is_active ? "Activa" : "Inactiva"}</span></td>
+                <td className="px-3 py-3"><span className={term.is_active ? "inline-flex rounded-full bg-[#dfe5d9] px-3 py-1 text-[11px] font-medium text-[#485449]" : "inline-flex rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground"}>{term.is_active ? "Activa" : "Inactiva"}</span></td>
                 <td colSpan={editingId === term.id ? 5 : undefined} className={editingId === term.id ? "px-3 py-3 bg-muted/20" : "px-3 py-3 text-right"}>
                   {editingId !== term.id ? (
-                    <button type="button" onClick={() => setEditingId(term.id)} className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted">Editar</button>
+                    <div className="flex items-center justify-end gap-2"><button type="button" title="Editar clasificación" aria-label={`Editar ${term.name}`} onClick={() => setEditingId(term.id)} className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#dedfd3] bg-transparent text-[#566055] transition-colors hover:bg-[#e9eadf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><Pencil size={16} strokeWidth={1.7} /></button><form action={setTaxonomyTermActive}><input type="hidden" name="id" value={term.id} /><input type="hidden" name="active" value={String(!term.is_active)} /><button type="submit" title={term.is_active ? "Desactivar clasificación" : "Activar clasificación"} aria-label={term.is_active ? `Desactivar ${term.name}` : `Activar ${term.name}`} className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#dedfd3] bg-transparent text-[#566055] transition-colors hover:bg-[#e9eadf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><Power size={16} strokeWidth={1.7} /></button></form><button type="button" title="Eliminar clasificación" aria-label={`Eliminar ${term.name}`} onClick={() => setDeleteTarget(term)} className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#dedfd3] bg-transparent text-[#8b5550] transition-colors hover:bg-[#f4e8e5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"><Trash2 size={16} strokeWidth={1.7} /></button></div>
                   ) : (
                     <div className="w-full min-w-[320px] rounded-xl border border-border bg-background p-4 text-left">
                       <div className="mb-3 flex items-center justify-between gap-3">
@@ -72,8 +73,7 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
                         </div>
                       </form>
                       <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-3">
-                        <form action={setTaxonomyTermActive}><input type="hidden" name="id" value={term.id} /><input type="hidden" name="active" value={String(!term.is_active)} /><button type="submit" className="text-xs font-medium text-primary underline underline-offset-4">{term.is_active ? "Desactivar opción" : "Reactivar opción"}</button></form>
-                        <button type="button" onClick={() => setDeleteTarget(term)} className="text-xs font-medium text-red-700 underline underline-offset-4">Eliminar definitivamente</button>
+                        <span className="text-xs text-muted-foreground">Usa los iconos de la fila para editar, activar/desactivar o eliminar.</span>
                       </div>
                     </div>
                   )}
