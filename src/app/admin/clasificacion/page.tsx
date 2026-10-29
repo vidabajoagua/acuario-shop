@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ListTree } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { createTaxonomyTerm } from "./actions";
+import CreateTaxonomyTermForm from "./CreateTaxonomyTermForm";
 import TaxonomyTermsTable from "./TaxonomyTermsTable";
 
 export const dynamic = "force-dynamic";
@@ -47,20 +47,15 @@ export default async function ProductTaxonomyAdminPage() {
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Organiza los productos por categoría y niveles. El orden define la posición de las opciones donde se utilice esta clasificación. Puedes desactivar opciones antiguas sin perder sus relaciones.</p>
       </div>
 
-      <details className="rounded-2xl border border-border bg-background p-4 md:p-5">
-        <summary className="cursor-pointer list-none text-base font-semibold">
-          <span className="inline-flex items-center gap-2"><span className="text-primary">＋</span> Agregar opción</span>
-          <p className="mt-1 text-xs font-normal text-muted-foreground">Abre el formulario solo cuando necesites registrar una nueva opción.</p>
-        </summary>
-        <form action={createTaxonomyTerm} className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          <div><label htmlFor="category_id" className="text-xs font-medium">Categoría *</label><select id="category_id" name="category_id" required defaultValue="" className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm"><option value="" disabled>Selecciona categoría</option>{(categories ?? []).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></div>
-          <div><label htmlFor="parent_id" className="text-xs font-medium">Depende de</label><select id="parent_id" name="parent_id" defaultValue="" className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm"><option value="">Nivel principal</option>{(terms ?? []).filter((term) => term.is_active).map((term) => <option key={term.id} value={term.id}>{categoryNames.get(term.category_id) ?? "Categoría"} · {term.parent_id ? \`\${termNames.get(term.parent_id) ?? ""} / \` : ""}{term.name}</option>)}</select></div>
-          <div><label htmlFor="name" className="text-xs font-medium">Nombre *</label><input id="name" name="name" required placeholder="Ej. Anubias" className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" /></div>
-          <div><label htmlFor="slug" className="text-xs font-medium">Slug (opcional)</label><input id="slug" name="slug" placeholder="Se genera del nombre" className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" /></div>
-          <div><label htmlFor="sort_order" className="text-xs font-medium">Orden de visualización</label><input id="sort_order" name="sort_order" type="number" min="0" step="1" defaultValue="0" className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" /><p className="mt-1 text-[11px] text-muted-foreground">Los números menores aparecen primero donde se aplique este orden.</p></div>
-          <div className="flex items-end"><button type="submit" className="h-10 w-full rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 sm:w-auto">Guardar opción</button></div>
-        </form>
-      </details>
+      <CreateTaxonomyTermForm
+        categories={(categories ?? []).map((category) => ({ id: category.id, name: category.name }))}
+        terms={(terms ?? []).filter((term) => term.is_active).map((term) => ({
+          id: term.id,
+          category_id: term.category_id,
+          parent_id: term.parent_id,
+          name: term.name,
+        }))}
+      />
 
       <TaxonomyTermsTable terms={tableTerms} />
     </div>
