@@ -1,0 +1,76 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { setTaxonomyTermActive, updateTaxonomyTerm } from "./actions";
+
+type TaxonomyTerm = {
+  id: string;
+  category_id: string;
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  sort_order: number;
+  is_active: boolean;
+  category_name: string;
+  parent_name: string;
+};
+
+export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] }) {
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
+
+  const filteredTerms = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    return terms.filter((term) => {
+      const matchesStatus = status === "all" || (status === "active" && term.is_active) || (status === "inactive" && !term.is_active);
+      const matchesSearch = !query || [term.name, term.slug, term.category_name, term.parent_name].some((value) => value.toLocaleLowerCase().includes(query));
+      return matchesStatus && matchesSearch;
+    });
+  }, [terms, search, status]);
+
+  return (
+    <section className="rounded-2xl border border-border bg-background p-4 md:p-5">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div><h2 className="text-base font-semibold">Opciones registradas</h2><p className="mt-1 text-xs text-muted-foreground">Busca, filtra y edita solo la opción que necesites.</p></div>
+        <span className="text-xs text-muted-foreground">{filteredTerms.length} de {terms.length} opciones</span>
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_190px]">
+        <div><label htmlFor="taxonomy-search" className="sr-only">Buscar opciones</label><input id="taxonomy-search" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por nombre, slug o categoría…" className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" /></div>
+        <div><label htmlFor="taxonomy-status" className="sr-only">Filtrar por estado</label><select id="taxonomy-status" value={status} onChange={(event) => setStatus(event.target.value as typeof status)} className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm"><option value="all">Todas las opciones</option><option value="active">Solo activas</option><option value="inactive">Solo inactivas</option></select></div>
+      </div>
+      <div className="mt-3 overflow-x-auto rounded-xl border border-border">
+        <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+          <thead className="bg-muted/40 text-xs text-muted-foreground"><tr><th className="px-3 py-3 font-medium">Opción</th><th className="px-3 py-3 font-medium">Categoría / nivel</th><th className="px-3 py-3 font-medium">Orden</th><th className="px-3 py-3 font-medium">Estado</th><th className="px-3 py-3 text-right font-medium">Acciones</th></tr></thead>
+          <tbody>
+            {filteredTerms.map((term) => (
+              <tr key={term.id} className="border-t border-border align-middle">
+                <td className="px-3 py-3"><p className="font-medium">{term.name}</p><p className="mt-0.5 text-xs text-muted-foreground">{term.slug}</p></td>
+                <td className="px-3 py-3"><p>{term.category_name}</p><p className="mt-0.5 text-xs text-muted-foreground">{term.parent_name}</p></td>
+                <td className="px-3 py-3 tabular-nums">{term.sort_order}</td>
+                <td className="px-3 py-3"><span className={term.is_active ? "inline-flex rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700" : "inline-flex rounded-full bg-muted px-2 py-1 text-[11px] text-muted-foreground"}>{term.is_active ? "Activa" : "Inactiva"}</span></td>
+                <td className="px-3 py-3 text-right">
+                  <details className="relative inline-block text-left">
+                    <summary className="cursor-pointer list-none rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted">Administrar</summary>
+                    <div className="absolute right-0 z-10 mt-2 w-[min(340px,calc(100vw-3rem))] rounded-xl border border-border bg-background p-3 text-left shadow-lg">
+                      <p className="mb-3 text-sm font-semibold">Editar {term.name}</p>
+                      <form action={updateTaxonomyTerm} className="space-y-3">
+                        <input type="hidden" name="id" value={term.id} />
+                        <div><label htmlFor={"term-name-" + term.id} className="text-xs font-medium">Nombre</label><input id={"term-name-" + term.id} name="name" required defaultValue={term.name} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm" /></div>
+                        <div><label htmlFor={"term-slug-" + term.id} className="text-xs font-medium">Slug</label><input id={"term-slug-" + term.id} name="slug" required defaultValue={term.slug} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm" /></div>
+                        <div><label htmlFor={"term-order-" + term.id} className="text-xs font-medium">Orden de visualización</label><input id={"term-order-" + term.id} name="sort_order" type="number" min="0" step="1" required defaultValue={term.sort_order} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm" /><p className="mt-1 text-[11px] text-muted-foreground">Menor número = posición anterior.</p></div>
+                        <button type="submit" className="h-9 w-full rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90">Guardar cambios</button>
+                      </form>
+                      <form action={setTaxonomyTermActive} className="mt-3 border-t border-border pt-3"><input type="hidden" name="id" value={term.id} /><input type="hidden" name="active" value={String(!term.is_active)} /><button type="submit" className="text-xs font-medium text-primary underline underline-offset-4">{term.is_active ? "Desactivar opción" : "Reactivar opción"}</button></form>
+                    </div>
+                  </details>
+                </td>
+              </tr>
+            ))}
+            {filteredTerms.length === 0 && <tr><td colSpan={5} className="px-3 py-10 text-center text-sm text-muted-foreground">No hay opciones que coincidan con la búsqueda y el filtro.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">Desactivar conserva la opción y sus relaciones. La eliminación definitiva se evaluará después de comprobar las dependencias con productos.</p>
+    </section>
+  );
+}
