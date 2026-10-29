@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { ArrowLeft, Tags } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { createBrand, toggleBrandStatus } from "./actions";
+import { createBrand, toggleBrandStatus, updateBrand } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function BrandsAdminPage() {
+export default async function BrandsAdminPage({ searchParams }: { searchParams: Promise<{ notice?: string }> }) {
+  const { notice } = await searchParams;
   const supabase = await createClient();
   const { data: brands, error } = await supabase.from("brands")
     .select("id,name,slug,description,website_url,is_active,sort_order,created_at")
@@ -21,6 +22,7 @@ export default async function BrandsAdminPage() {
       </div>
       <p className="mt-3 text-muted-foreground">Registra marcas una sola vez para mantener un catálogo consistente. Desactivar una marca no elimina productos relacionados.</p>
     </div>
+    {notice === "updated" && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">Marca actualizada exitosamente.</p>}
     <section className="rounded-2xl border border-border bg-background p-6">
       <h2 className="text-lg font-semibold">Agregar marca</h2>
       <form action={createBrand} className="mt-5 grid gap-5 md:grid-cols-2">
@@ -36,7 +38,7 @@ export default async function BrandsAdminPage() {
       <h2 className="text-lg font-semibold">Marcas registradas ({brands?.length ?? 0})</h2>
       <div className="mt-4 divide-y divide-border">{(brands ?? []).map((brand) => <div key={brand.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
         <div><p className="font-medium">{brand.name}</p><p className="text-xs text-muted-foreground">{brand.slug}{brand.website_url ? ` · ${brand.website_url}` : ""}{brand.description ? ` · ${brand.description}` : ""}</p></div>
-        <div className="flex items-center gap-3"><span className={brand.is_active ? "text-xs text-emerald-700" : "text-xs text-muted-foreground"}>{brand.is_active ? "Activa" : "Inactiva"}</span><form action={toggleBrandStatus}><input type="hidden" name="id" value={brand.id}/><input type="hidden" name="active" value={String(!brand.is_active)}/><button className="rounded-lg border border-border px-3 py-2 text-xs">{brand.is_active ? "Desactivar" : "Activar"}</button></form></div>
+        <div className="flex flex-wrap items-center gap-2"><span className={brand.is_active ? "text-xs text-emerald-700" : "text-xs text-muted-foreground"}>{brand.is_active ? "Activa" : "Inactiva"}</span><details className="group"><summary className="cursor-pointer list-none rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted">Editar</summary><form action={updateBrand} className="mt-3 grid min-w-[min(80vw,620px)] gap-3 rounded-xl border border-border bg-background p-4 sm:grid-cols-2"><input type="hidden" name="id" value={brand.id}/><div><label className="text-xs font-medium">Nombre *</label><input name="name" required defaultValue={brand.name} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2 text-sm"/></div><div><label className="text-xs font-medium">Slug *</label><input name="slug" required defaultValue={brand.slug} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2 text-sm"/></div><div><label className="text-xs font-medium">Descripción</label><input name="description" defaultValue={brand.description ?? ""} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2 text-sm"/></div><div><label className="text-xs font-medium">Sitio web</label><input name="website_url" type="url" defaultValue={brand.website_url ?? ""} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2 text-sm"/></div><div><label className="text-xs font-medium">Orden</label><input name="sort_order" type="number" min="0" step="1" required defaultValue={brand.sort_order} className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2 text-sm"/></div><div className="flex items-end"><button className="h-9 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground">Guardar cambios</button></div></form></details><form action={toggleBrandStatus}><input type="hidden" name="id" value={brand.id}/><input type="hidden" name="active" value={String(!brand.is_active)}/><button className="rounded-lg border border-border px-3 py-2 text-xs">{brand.is_active ? "Desactivar" : "Activar"}</button></form></div>
       </div>)}</div>
     </section>
   </div>;
