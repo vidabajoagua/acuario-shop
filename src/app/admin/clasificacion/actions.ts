@@ -138,6 +138,6 @@ export async function deleteTaxonomyTerm(formData: FormData) {
 
   revalidatePath("/admin/clasificacion");
   revalidatePath("/admin/productos/nuevo");
-  redirect("/admin/clasificacion");
+  redirect("/admin/clasificacion?notice=deleted");
 }
 
