@@ -19,6 +19,7 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<TaxonomyTerm | null>(null);
 
   const filteredTerms = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
@@ -71,7 +72,7 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
                       </form>
                       <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-3">
                         <form action={setTaxonomyTermActive}><input type="hidden" name="id" value={term.id} /><input type="hidden" name="active" value={String(!term.is_active)} /><button type="submit" className="text-xs font-medium text-primary underline underline-offset-4">{term.is_active ? "Desactivar opción" : "Reactivar opción"}</button></form>
-                        <form action={deleteTaxonomyTerm} onSubmit={(event) => { if (!window.confirm("¿Eliminar definitivamente esta opción? Solo se permitirá si no tiene productos ni subclasificaciones asignados.")) event.preventDefault(); }}><input type="hidden" name="id" value={term.id} /><button type="submit" className="text-xs font-medium text-red-700 underline underline-offset-4">Eliminar definitivamente</button></form>
+                        <button type="button" onClick={() => setDeleteTarget(term)} className="text-xs font-medium text-red-700 underline underline-offset-4">Eliminar definitivamente</button>
                       </div>
                     </div>
                   )}
@@ -82,6 +83,25 @@ export default function TaxonomyTermsTable({ terms }: { terms: TaxonomyTerm[] })
         </table>
       </div>
       <p className="mt-3 text-xs text-muted-foreground">Desactivar conserva la opción y sus relaciones. La eliminación definitiva se evaluará después de comprobar las dependencias con productos.</p>
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setDeleteTarget(null); }}>
+          <section role="alertdialog" aria-modal="true" aria-labelledby="delete-taxonomy-title" className="w-full max-w-md rounded-2xl border border-border bg-background p-5 shadow-2xl">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700">!</div>
+              <div>
+                <h3 id="delete-taxonomy-title" className="text-base font-semibold">¿Seguro que deseas eliminar esta clasificación?</h3>
+                <p className="mt-2 text-sm text-muted-foreground">Vas a eliminar definitivamente <strong className="text-foreground">{deleteTarget.name}</strong>. Esta acción no se puede deshacer.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Solo se podrá eliminar si no tiene productos ni subclasificaciones asignados.</p>
+              </div>
+            </div>
+            <form action={deleteTaxonomyTerm} className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <input type="hidden" name="id" value={deleteTarget.id} />
+              <button type="button" onClick={() => setDeleteTarget(null)} className="h-10 rounded-lg border border-border px-4 text-sm font-medium hover:bg-muted">Cancelar</button>
+              <button type="submit" className="h-10 rounded-lg bg-red-700 px-4 text-sm font-medium text-white hover:bg-red-800">Sí, eliminar</button>
+            </form>
+          </section>
+        </div>
+      )}
     </section>
   );
 }
