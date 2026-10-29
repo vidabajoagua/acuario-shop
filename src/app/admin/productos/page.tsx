@@ -229,12 +229,12 @@ export default async function AdminProductosPage() {
                       {/* Estado */}
                       <td className="px-5 py-4">
                         <div className="flex flex-wrap gap-2">
-                          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                          <span className="inline-flex rounded-full bg-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-950">
                             Activo
                           </span>
 
                           {product.is_featured && (
-                            <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium">
+                            <span className="inline-flex rounded-full bg-sky-200 px-3 py-1 text-xs font-semibold text-sky-950">
                               Destacado
                             </span>
                           )}
@@ -256,7 +256,7 @@ export default async function AdminProductosPage() {
                           <Link
                             href={`/admin/productos/${product.id}/editar`}
                             aria-label={`Editar ${product.name}`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-sky-200 bg-sky-50 text-sky-700 transition-colors hover:bg-sky-100"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300 bg-violet-100 text-violet-800 transition-colors hover:bg-violet-200"
                           >
                             <Pencil size={16} />
                           </Link>
