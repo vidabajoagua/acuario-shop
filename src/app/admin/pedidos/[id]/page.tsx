@@ -180,6 +180,14 @@ export default async function OrderDetailPage({
     refunded: "Reembolsado",
   };
 
+  const paymentStatusClass: Record<string, string> = {
+    pending: "bg-amber-100 text-amber-800",
+    waiting_verification: "bg-amber-100 text-amber-800",
+    paid: "bg-emerald-100 text-emerald-800",
+    rejected: "bg-rose-100 text-rose-800",
+    refunded: "bg-violet-100 text-violet-800",
+  };
+
   return (
     <div className="space-y-8">
 
@@ -224,7 +232,7 @@ export default async function OrderDetailPage({
             </span>
 
             {payment && (
-              <span className="rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
+              <span className={`inline-flex rounded-full px-3 py-1.5 text-sm font-medium ${paymentStatusClass[payment.payment_status] ?? "bg-slate-100 text-slate-700"}`}>
                 {paymentStatuses[
                   payment.payment_status
                 ] ?? payment.payment_status}
