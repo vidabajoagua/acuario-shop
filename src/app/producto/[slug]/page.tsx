@@ -77,7 +77,7 @@ const hasComparePrice =
 
   return (
     <main>
-      <section className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-16">
+      <section className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
         <Link
           href="/tienda"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
@@ -86,7 +86,7 @@ const hasComparePrice =
           Volver a la tienda
         </Link>
 
-        <div className="mt-10 grid gap-12 lg:grid-cols-2">
+        <div className="mt-6 grid items-start gap-8 lg:grid-cols-2">
           {/* Galería */}
       <ProductGallery
         productName={product.name}
@@ -94,23 +94,23 @@ const hasComparePrice =
           />
 
           {/* Información */}
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-start pt-1">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
               {product.categories?.name ?? "Sin categoría"}
             </p>
 
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">
               {product.name}
             </h1>
 
             {product.brand && (
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Marca: {product.brand}
               </p>
             )}
 
-            <div className="mt-8">
-              <p className="text-3xl font-semibold">
+            <div className="mt-5">
+              <p className="text-2xl font-semibold md:text-[1.7rem]">
                 ${product.price.toFixed(2)}
               </p>
 
@@ -121,22 +121,22 @@ const hasComparePrice =
               )}
             </div>
 
-            <div className="my-8 h-px bg-border" />
+            <div className="my-5 h-px bg-border" />
 
-            <p className="text-base leading-8 text-muted-foreground">
+            <p className="text-sm leading-6 text-muted-foreground">
               {product.description ??
                 product.short_description ??
                 ""}
             </p>
 
             {visibleAttributes.length > 0 && (
-              <section className="mt-8 rounded-2xl border border-border p-5">
-                <h2 className="text-lg font-semibold">Características y cuidados</h2>
-                <dl className="mt-4 divide-y divide-border">
+              <section className="mt-5 rounded-2xl border border-border p-4">
+                <h2 className="text-base font-semibold">Características y cuidados</h2>
+                <dl className="mt-2 divide-y divide-border">
                   {visibleAttributes.map((attribute) => (
-                    <div key={attribute.id} className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-2 sm:gap-4">
-                      <dt className="text-sm text-muted-foreground">{attribute.name}</dt>
-                      <dd className="text-sm font-medium">
+                    <div key={attribute.id} className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-center gap-3 py-2 sm:gap-4">
+                      <dt className="text-xs leading-5 text-muted-foreground sm:text-sm">{attribute.name}</dt>
+                      <dd className="text-xs font-medium leading-5 sm:text-sm">
                         {attribute.formattedValue}{attribute.unit ? ` ${attribute.unit}` : ""}
                       </dd>
                     </div>
@@ -145,7 +145,7 @@ const hasComparePrice =
               </section>
             )}
 
-            <div className="mt-8 space-y-4">
+            <div className="mt-5 space-y-3">
               {/* Stock */}
               <div className="flex items-center gap-3 rounded-xl border border-border p-4">
                 <Package
